@@ -36,8 +36,8 @@ contract Raffle is VRFConsumerBaseV2Plus {
     /* Errors */
     error Raffle__SendMoreToEnterRaffle();
 
-    uint16 private constant REQUEST_CONFIRMATIONS=3;
-    uint32 private constant NUM_WORDS=1;
+    uint16 private constant REQUEST_CONFIRMATIONS = 3;
+    uint32 private constant NUM_WORDS = 1;
     uint256 private immutable i_entranceFee;
     uint256 private immutable i_interval;
     bytes32 private immutable i_keyHash;
@@ -49,8 +49,13 @@ contract Raffle is VRFConsumerBaseV2Plus {
     /* Events */
     event RaffleEntered(address indexed player);
 
-    constructor(uint256 entranceFee, uint256 interval, address vrfCoordinator,bytes32 gasLane,uint256 subscriptionId,
-    uint32 callbackGasLimit
+    constructor(
+        uint256 entranceFee,
+        uint256 interval,
+        address vrfCoordinator,
+        bytes32 gasLane,
+        uint256 subscriptionId,
+        uint32 callbackGasLimit
     ) VRFConsumerBaseV2Plus(vrfCoordinator) {
         i_entranceFee = entranceFee;
         i_interval = interval;
@@ -81,20 +86,16 @@ contract Raffle is VRFConsumerBaseV2Plus {
         if ((block.timestamp - s_lastTimeStamp) < i_interval) {
             revert();
         }
-        VRFV2PlusClient.RandomWordsRequest memory request = VRFV2PlusClient.RandomWordsRequest(
-            {
-                keyHash: i_keyHash,
-                subId: i_subscriptionId,
-                requestConfirmations: REQUEST_CONFIRMATIONS,
-                callbackGasLimit: i_callbackGasLimit,
-                numWords: NUM_WORDS,
-                extraArgs: VRFV2PlusClient._argsToBytes(
-                    VRFV2PlusClient.ExtraArgsV1({nativePayment: false})) 
-            });
+        VRFV2PlusClient.RandomWordsRequest memory request = VRFV2PlusClient.RandomWordsRequest({
+            keyHash: i_keyHash,
+            subId: i_subscriptionId,
+            requestConfirmations: REQUEST_CONFIRMATIONS,
+            callbackGasLimit: i_callbackGasLimit,
+            numWords: NUM_WORDS,
+            extraArgs: VRFV2PlusClient._argsToBytes(VRFV2PlusClient.ExtraArgsV1({nativePayment: false}))
+        });
 
-        uint256 requestID = s_vrfCoordinator.requestRandomWords(
-            request
-        );
+        uint256 requestID = s_vrfCoordinator.requestRandomWords(request);
     }
 
     function fulfillRandomWords(uint256 requestId, uint256[] calldata randomWords) internal virtual override {}
