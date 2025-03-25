@@ -63,11 +63,11 @@ contract Raffle is VRFConsumerBaseV2Plus {
     constructor(
         uint256 entranceFee,
         uint256 interval,
-        address vrfCoordinator,
+        address vrfCoordinatorV2_5,
         bytes32 gasLane,
         uint256 subscriptionId,
         uint32 callbackGasLimit
-    ) VRFConsumerBaseV2Plus(vrfCoordinator) {
+    ) VRFConsumerBaseV2Plus(vrfCoordinatorV2_5) {
         i_entranceFee = entranceFee;
         i_interval = interval;
         i_keyHash = gasLane;
@@ -167,5 +167,9 @@ contract Raffle is VRFConsumerBaseV2Plus {
      */
     function getEntranceFee() external view returns (uint256) {
         return i_entranceFee;
+    }
+
+    function getRaffleState() external view returns (RaffleState) {
+        return s_raffleState;
     }
 }
