@@ -54,7 +54,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     address payable[] private s_players;
     uint256 private s_lastTimeStamp;
     address private s_recentWinner;
-    RaffleState private s_raffleState;
+    RaffleState private s_raffleState; // start as open
 
     /* Events */
     event RaffleEntered(address indexed player);
@@ -121,7 +121,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
 
     // 3. Be automatically called
 
-    function performUpkeep() external {
+    function performUpkeep(bytes calldata /* performData */ ) external {
         // check to see if enough time has passed
         (bool upkeepNeeded,) = checkUpkeep("");
         if (!upkeepNeeded) {
@@ -171,5 +171,9 @@ contract Raffle is VRFConsumerBaseV2Plus {
 
     function getRaffleState() external view returns (RaffleState) {
         return s_raffleState;
+    }
+
+    function getPlayer(uint256 indexOfPlayer) external view returns (address) {
+        return s_players[indexOfPlayer];
     }
 }
