@@ -7,9 +7,10 @@ import {DeployRaffle} from "../../script/DeployRaffle.s.sol";
 import {HelperConfig} from "../../script/HelperConfig.s.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {VRFCoordinatorV2_5Mock} from "@chainlink/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
+import {CodeConstants} from "script/HelperConfig.s.sol";
 
 
-contract RaffleTest is Test {
+contract RaffleTest is  CodeConstants,Test {
     Raffle public raffle;
     HelperConfig public helperConfig;
 
@@ -183,7 +184,15 @@ contract RaffleTest is Test {
     /*////////////////////////////////////////////////////////
                         FULFILLRANDOMWORDS
     /////////////////////////////////////////////////////////*/ 
-    function testFullfillrandomWordsCanOnlyBeCalledAfterPerformUpkeep(uint256 randomRequestId) public raffleEntered{
+
+    modifier skipFork(){
+        if(block.chainid!=LOCAL_CHAIN_ID){
+            return;
+        }
+        _;
+    }
+
+    function testFullfillrandomWordsCanOnlyBeCalledAfterPerformUpkeep(uint256 randomRequestId) public raffleEntered skipFork{
         // Arrange / Act / Assert
         vm.expectRevert(VRFCoordinatorV2_5Mock.InvalidRequest.selector);
         VRFCoordinatorV2_5Mock(vrfCoordinatorV2_5).fulfillRandomWords(randomRequestId,address(raffle));
@@ -214,11 +223,11 @@ contract RaffleTest is Test {
         Raffle.RaffleState raffleState = raffle.getRaffleState();
         uint256 winnerBalance = recentWinner.balance;
         uint256 endingTimeStamp = raffle.getLastTimeStamp();
-        uint256 prize = entranceFee + (additionalEntrants + 1);
+        uint256 prize = entranceFee * (additionalEntrants + 1);
 
         assert(recentWinner == expectedWinner);
         assert(uint256(raffleState) == 0);
         assert(winnerBalance == winnerStartingBalance + prize);
-        assert(endingTimeStamp>startingTimeStamp);
+        assert(endingTimeStamp > startingTimeStamp);
     }
 }
